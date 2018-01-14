@@ -3,73 +3,259 @@
 /*                                                        :::      ::::::::   */
 /*   Board.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
+/*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 12:13:34 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/13 16:29:25 by iprokofy         ###   ########.fr       */
+/*   Updated: 2018/01/14 01:57:05 by Ulliwy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ncurses.h"
+#include <ncurses.h>
+#include <stdlib.h>
 
 #include "Board.hpp"
 #include "Player.hpp"
+#include "Enemy.hpp"
 #include "Cell.hpp"
+#include "Bullet.hpp"
 
-Board::Board(int height, int width, int yy, int xx) :
-	height(height), width(width), yy(yy), xx(xx), player(yy, xx)
-{
-	win = newwin(height, width, yy, xx);
-	Board::allocCells();
-	Board::initCells('O', COLOR_PAIR(1));
+static unsigned getTimeStamp() {
+	struct timespec time; 
+    clock_gettime(CLOCK_REALTIME, &time);
+    return (1000000000 * time.tv_sec + time.tv_nsec) / 1000000;
 }
 
-Board::~Board()
-{
-	Board::delCells();
+void Board::drawBox() const {
+	wborder(this->win, ' ', ' ', '-', '-', '+', '+', '+', '+');
+}
+
+void Board::drawBox(int y1, int y2, int x, int width) const {
+	mvwhline(win, y1, x, '-', width);
+	mvwhline(win, y2, x, '-', width);
+}
+
+bool collide(const Item &m1, const Item &m2) {
+	int x1a = m1.getX();
+	int x1b = x1a + m1.getWidth();
+
+	int y1a = m1.getY();
+	int y1b = y1a + m1.getHeight();
+
+	int x2a = m2.getX();
+	int x2b = x2a + m2.getWidth();
+
+	int y2a = m2.getY();
+	int y2b = y2a + m2.getHeight();
+
+	return ((x1a < x2b && x1b > x2a) || (x1a > x2b && x1b < x2a)) &&
+		   ((y1a < y2b && y1b > y2a) || (y1a > y2b && y1b < y2a));
+}
+
+Board::Board(int height, int width)
+	: gameState(PLAY), score(0),
+	  height(height), width(width),
+	  player(height/2, 1) {
+
+	unsigned time = getTimeStamp();
+	enemyTimeStamp = time;
+	bulletTimeStamp = time;
+
+	srand(time_t());
+
+	win = newwin(height, width, 0, 0);
+}
+
+bool Board::step() {
+	if (gameState == GAMEOVER) {
+		return false;
+	}
+
+	unsigned cur = getTimeStamp();
+
+	getmaxyx(win, height, width);
+
+	bool changed = false;
+
+	int dx = 0;
+	int dy = 0;
+	bool createBullet = false;
+
+	int ch = getch();
+	if (ch == '\033') { // if the first value is esc
+		getch(); // skip the [
+		switch(getch()) { // the real value
+		    case 'A':
+		        // code for arrow up
+		    	dy = -1;
+		        break;
+		    case 'B':
+		        // code for arrow down
+		    	dy = +1;
+		        break;
+		    case 'C':
+		        // code for arrow right
+		    	dx = +1;
+		        break;
+		    case 'D':
+		        // code for arrow left
+		    	dx = -1;
+		        break;
+		}
+	} else if (ch == ' ') {
+		createBullet = true;
+	}
+
+	int px = player.getX();
+	int py = player.getY();
+	if (px + dx < 0 || px + dx + player.getWidth() > width)
+		dx = 0;
+	if (py + dy - 1 < 0 || py + dy + player.getHeight() + 1 > height)
+		dy = 0; 
+	if (dx || dy) {
+		player.move(dy, dx);
+		changed = true;
+	}
+
+	if (createBullet) {
+		if (cur - bulletFireTimeStamp > 1000) {
+			bulletFireTimeStamp = cur;
+			bullets.push_back(new Bullet(py, px + player.getWidth()));
+		}
+	}
+
+	if (cur - bulletTimeStamp >= 10) {
+		bulletTimeStamp = cur;
+
+		for (list_t::iterator i = bullets.begin(); i != bullets.end();) {
+			Item &m = *i->item;
+
+			changed = true;
+
+			m.move(0, 1);	
+
+			// Destroy disappeared bullets
+			if (m.getX() > width) {
+				delete bullets.eraseInc(i);
+				continue;
+			}
+
+			++i;
+		}
+	}
+
+	if (cur - enemyTimeStamp >= 100) {
+		enemyTimeStamp = cur;
+
+		for (list_t::iterator i = enemies.begin(); i != enemies.end();) {
+			Item &m = *i->item;
+
+			changed = true;
+
+			unsigned r = rand() % 100;
+			int dy = (r % 2) ? -1 : 1;
+			int newY = m.getY() + dy;
+
+			if (r >= 50 && newY > 1 && newY < height - Enemy::HEIGHT - 1) {
+				// Change lane
+				m.move(dy, 0);
+				
+				//Check if there is a collision
+				for (list_t::iterator ie = enemies.begin(); ie != enemies.end(); ++ie) {
+					if(ie != i && collide(m, *ie->item)) {
+						// Move back and forward
+						m.move(-dy, -1);
+						break;
+					}
+				}
+			}
+
+			// Move forward
+			m.move(0, -1);	
+
+			// Destroy disappeared enemies
+			if (m.getX() <= -Enemy::WIDTH) {
+				delete enemies.eraseInc(i);
+				continue;
+			}
+
+			++i;
+		}
+	}
+
+	if (changed) {
+		for (list_t::iterator ie = enemies.begin(); ie != enemies.end();) {
+			Item &enemy = *ie->item;
+
+			if (collide(player, enemy)) {
+				gameState = GAMEOVER;
+				break;
+			}
+
+			bool foundCollision = false;
+			for (list_t::iterator ib = bullets.begin(); ib != bullets.end();) {
+				if (collide(*ib->item, enemy)) {
+					delete enemies.eraseInc(ie);
+					delete bullets.erase(ib);
+					foundCollision = true;
+					score++;
+					break;
+				}
+				++ib;
+			}
+
+			if (!foundCollision) {
+				++ie;
+			}
+		}
+	}
+
+	if ((rand() % 1000) <= 5) {
+		enemies.push_back(new Enemy(1 + rand() % (height - Enemy::HEIGHT - 1), width));
+	}
+
+	return changed;
+}
+
+Board::~Board() {
 	delwin(win);
-}
+	for (list_t::iterator i = enemies.begin(); i != enemies.end(); ++i) {
+		delete i->item;
+	}
 
-void	Board::delCells()
-{
-	for (int ii = 0; ii < height; ii++)
-		delete[] cells[ii];
-	delete[] cells;
-}
-
-void	Board::allocCells()
-{
-	cells = new Cell*[height];
-	for (int ii = 0; ii < height; ii++)
-		cells[ii] = new Cell[width];
-}
-
-void	Board::initCells(char value, int attrib)
-{
-	for (int yy = 0; yy < height; yy++)
-	{
-		for (int xx = 0; xx < width; xx++)
-		{
-			cells[yy][xx].value = value;
-			cells[yy][xx].attrib = attrib;
-		}
+	for (list_t::iterator i = bullets.begin(); i != bullets.end(); ++i) {
+		delete i->item;
 	}
 }
 
-void	Board::display()
-{
+void Board::draw() {
+	int start = 1;
 	werase(win);
-	for (int yy = 0; yy < height; yy++)
-	{
-		for (int xx = 0; xx < width; xx++)
-		{
-			wattron(win, cells[yy][xx].attrib);
-			wprintw(win, "%c", cells[yy][xx].value);
-			wattroff(win, cells[yy][xx].attrib);
-		}
+	drawBox();
+
+	player.draw(win);
+	for (list_t::iterator i = enemies.begin(); i != enemies.end(); ++i) {
+		i->item->draw(win);
 	}
+	for (list_t::iterator i = bullets.begin(); i != bullets.end(); ++i) {
+		i->item->draw(win);
+	}
+
+	unsigned idx = start;
+	mvwprintw(win, idx++, 1, "Score: %u", score);
+
+	// for (list_t::iterator i = enemies.begin(); i != enemies.end(); ++i, ++idx) {
+	// 	mvwprintw(win, idx, 1, "enemyId: %u", i->item->getId());
+	// }
+	// for (list_t::iterator i = bullets.begin(); i != bullets.end(); ++i, ++idx) {
+	// 	mvwprintw(win, idx, 1, "bulletId: %u", i->item->getId());
+	// }
+
+	if (gameState == GAMEOVER) {
+		mvwprintw(win, height / 2, width / 2 - 4, "GAME OVER");
+		drawBox(height / 2 - 1, height / 2 + 1, width / 2 - 5, 11);
+	}
+	
 	wrefresh(win);
-	player.display();
 }
 
 void	Board::setWin(WINDOW *win)
@@ -82,25 +268,8 @@ WINDOW	*Board::getWin()
 	return (win);
 }
 
-void	Board::setCells(Cell **cells)
-{
-	for (int ii = 0; ii < height; ii++)
-		delete[] cells[ii];
-	delete[] cells;
-	this->cells = cells;
-}
-
-Cell	**Board::getCells()
-{
-	return (cells);
-}
-
 Player&	Board::getPlayer()
 {
 	return (player);
 }
 
-void	Board::setPlayer(Player const& player)
-{
-	this->player = player;
-}

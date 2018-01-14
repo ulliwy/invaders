@@ -1,26 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Item.cpp                                           :+:      :+:    :+:   */
+/*   Bullet.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/01/13 14:54:31 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 00:28:02 by Ulliwy           ###   ########.fr       */
+/*   Created: 2018/01/13 22:59:29 by Ulliwy            #+#    #+#             */
+/*   Updated: 2018/01/13 23:25:51 by Ulliwy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ncurses.h"
+#ifndef BULLET_HPP
+#define BULLET_HPP
 
 #include "Item.hpp"
 
-unsigned Item::maxId = 0;
-
-Item::~Item() {}
-Item::Item(int y, int x) : id(maxId++), y(y), x(x) {}
-
-void	Item::move(int dy, int dx)
+class	Bullet : public Item
 {
-	y += dy;
-	x += dx;
-}
+	Cell cells[1][1];
+
+public:
+	Bullet();
+	virtual ~Bullet();
+	Bullet(int yy, int xx);
+
+	virtual Cell *getCells() {
+		return &cells[0][0];
+	}
+
+	virtual int getWidth() const {
+		return 1;
+	}
+
+	virtual int getHeight() const {
+		return 1;
+	}
+};
+
+#endif

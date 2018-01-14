@@ -1,26 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Item.cpp                                           :+:      :+:    :+:   */
+/*   Bullet.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/01/13 14:54:31 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 00:28:02 by Ulliwy           ###   ########.fr       */
+/*   Created: 2018/01/13 22:59:31 by Ulliwy            #+#    #+#             */
+/*   Updated: 2018/01/13 23:26:36 by Ulliwy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ncurses.h"
 
+#include "Bullet.hpp"
 #include "Item.hpp"
 
-unsigned Item::maxId = 0;
+Bullet::~Bullet() {}
 
-Item::~Item() {}
-Item::Item(int y, int x) : id(maxId++), y(y), x(x) {}
-
-void	Item::move(int dy, int dx)
-{
-	y += dy;
-	x += dx;
+Bullet::Bullet(int yy, int xx) : Item::Item(yy, xx) {
+	cells[0][0].value = '_';
+	cells[0][0].attrib = COLOR_PAIR(1);
 }
