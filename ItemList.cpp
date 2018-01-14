@@ -6,7 +6,7 @@
 /*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/14 10:18:35 by Ulliwy            #+#    #+#             */
-/*   Updated: 2018/01/14 12:51:12 by iprokofy         ###   ########.fr       */
+/*   Updated: 2018/01/14 13:37:44 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ ItemList::~ItemList() {
 }
 
 void ItemList::operator=(ItemList const &rfs) {
+	(void)rfs;
 }
 
 void ItemList::push_back(Item *item) {
@@ -84,18 +85,15 @@ Item *ItemList::erase(iterator &it) {
 	if (head == &*it) {
 		head = it->next;
 	}
-
 	// Update tail
 	if (tail == &*it) {
 		tail = it->prev;
 	}
-
 	// Update next link
 	if (it->prev) {
 		// If not the first element;
 		it->prev->next = it->next;
 	}
-
 	// Update prev link
 	if (it->next) {
 		// If not the last element;
@@ -105,7 +103,6 @@ Item *ItemList::erase(iterator &it) {
 	Item *tmp = it->item;
 
 	delete &*it;
-
 	return tmp;
 }
 

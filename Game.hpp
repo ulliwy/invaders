@@ -6,7 +6,7 @@
 /*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 12:13:41 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 12:42:30 by iprokofy         ###   ########.fr       */
+/*   Updated: 2018/01/14 13:35:13 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 class Game {
 	Game();
 	Game(Game &rfs);
-	void operator=(Game const &frs) {}
+	void operator=(Game const &frs);
 	void drawBox() const;
 	void drawBox(int y1, int y2, int x, int width) const;
 	void reset();

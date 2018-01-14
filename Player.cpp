@@ -6,7 +6,7 @@
 /*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 15:04:18 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 12:40:04 by iprokofy         ###   ########.fr       */
+/*   Updated: 2018/01/14 13:37:05 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ Player::Player(Player const &rfs) {
 }
 
 Player &Player::operator=(Player const &rfs) {
+	(void)rfs;
 	return *this;
 }
 

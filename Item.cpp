@@ -6,7 +6,7 @@
 /*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 14:54:31 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 12:29:17 by iprokofy         ###   ########.fr       */
+/*   Updated: 2018/01/14 13:36:03 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ unsigned Item::getId() {
 }
 
 bool Item::step(std::clock_t timeStamp) {
+	(void)timeStamp;
 	return false;
 };
 

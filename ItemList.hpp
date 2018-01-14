@@ -6,7 +6,7 @@
 /*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/14 10:18:39 by Ulliwy            #+#    #+#             */
-/*   Updated: 2018/01/14 12:48:55 by iprokofy         ###   ########.fr       */
+/*   Updated: 2018/01/14 13:37:22 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,10 @@ public:
 	~ItemList();
 
 	void operator=(ItemList const &rfs);
-
 	void push_back(Item *item);
-
 	Item *erase(iterator &it);
-
 	Item *eraseInc(iterator &it);
-
 	Item *erase(Item *item);
-
 	iterator begin();
-
 	iterator end();
 };

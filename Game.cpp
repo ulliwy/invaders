@@ -6,7 +6,7 @@
 /*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 12:13:34 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 12:42:44 by iprokofy         ###   ########.fr       */
+/*   Updated: 2018/01/14 13:35:32 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ Game::Game(int height, int width)
 }
 
 Game::Game(Game &rfs) {
+	(void)rfs;
 }
 
 Game::~Game() {
@@ -150,7 +151,7 @@ bool Game::step() {
 	}
 
 	if (createBullet) {
-		if (cur - bulletFireTimeStamp > 200) {
+		if (cur - bulletFireTimeStamp > 100) {
 			bulletFireTimeStamp = cur;
 			bullets.push_back(new Bullet(py, px + player.getWidth()));
 		}
@@ -245,7 +246,7 @@ bool Game::step() {
 		}
 	}
 
-	if ((rand() % 1000) <= 5) {
+	if ((rand() % 1000) <= 10) {
 		enemies.push_back(new Enemy(1 + rand() % (height - Enemy::HEIGHT - 1), width));
 	}
 
