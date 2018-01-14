@@ -6,7 +6,7 @@
 /*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 12:13:34 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 02:19:43 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 10:59:29 by Ulliwy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,10 +196,15 @@ bool Board::step() {
 			bool foundCollision = false;
 			for (list_t::iterator ib = bullets.begin(); ib != bullets.end();) {
 				if (collide(*ib->item, enemy)) {
-					delete enemies.eraseInc(ie);
+					if (enemy.takeDamage()) {
+						delete enemies.eraseInc(ie);
+						foundCollision = true;
+						score++;
+					}
+
 					delete bullets.erase(ib);
-					foundCollision = true;
-					score++;
+					
+					beep();
 					break;
 				}
 				++ib;

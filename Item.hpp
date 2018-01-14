@@ -6,7 +6,7 @@
 /*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 14:54:13 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 00:27:42 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 10:50:47 by Ulliwy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,8 @@ public:
 	}
 
 	virtual bool step(std::clock_t timeStamp) { return false; };
+
+	virtual bool takeDamage() { return true; };
 };
 
 #endif
