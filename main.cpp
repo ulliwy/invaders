@@ -6,7 +6,7 @@
 /*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 13:40:43 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/13 22:36:53 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 02:22:46 by Ulliwy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,18 +35,17 @@ int		main()
 	int 	height;
 	int 	width;
 
-	init_display(&height, &width);
+	while (1) {
+		init_display(&height, &width);
+		Board board = Board(height, width);
+		board.draw();
 
-	Board board = Board(height, width);
-	board.draw();
-
-	while (1)
-	{	
-		if (board.step()) {
-			board.draw();
+		while (!board.getNeedReset())
+		{	
+			if (board.step()) {
+				board.draw();
+			}
 		}
-		//mvprintw(0, 0, "%d", i);
-		//board.getPlayer().move(1, 1);
 	}
 	endwin();
 }

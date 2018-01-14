@@ -6,7 +6,7 @@
 /*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 12:13:34 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 01:57:05 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 02:19:43 by Ulliwy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ bool collide(const Item &m1, const Item &m2) {
 }
 
 Board::Board(int height, int width)
-	: gameState(PLAY), score(0),
+	: gameState(PLAY), score(0), needReset(false),
 	  height(height), width(width),
 	  player(height/2, 1) {
 
@@ -66,10 +66,6 @@ Board::Board(int height, int width)
 }
 
 bool Board::step() {
-	if (gameState == GAMEOVER) {
-		return false;
-	}
-
 	unsigned cur = getTimeStamp();
 
 	getmaxyx(win, height, width);
@@ -103,6 +99,12 @@ bool Board::step() {
 		}
 	} else if (ch == ' ') {
 		createBullet = true;
+	} else if (ch == 'r' && gameState == GAMEOVER) {
+		needReset = true;
+	}
+
+	if (gameState == GAMEOVER) {
+		return false;
 	}
 
 	int px = player.getX();
@@ -117,7 +119,7 @@ bool Board::step() {
 	}
 
 	if (createBullet) {
-		if (cur - bulletFireTimeStamp > 1000) {
+		if (cur - bulletFireTimeStamp > 800) {
 			bulletFireTimeStamp = cur;
 			bullets.push_back(new Bullet(py, px + player.getWidth()));
 		}

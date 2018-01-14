@@ -6,7 +6,7 @@
 /*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 12:13:41 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 01:56:26 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 02:14:24 by Ulliwy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,7 @@ class Board {
 
 	GameState gameState;
 	unsigned score;
+	bool needReset;
 
 	int		height;
 	int		width;
@@ -172,6 +173,8 @@ class Board {
 
 	void drawBox() const;
 	void drawBox(int y1, int y2, int x, int width) const;
+	void reset();
+
 public:
 
 	Board();
@@ -182,8 +185,7 @@ public:
 	void			setWin(WINDOW *win);
 	void			draw();
 	Player&			getPlayer();
-	//void			update_player();
-	//void			update_items();
+	bool			getNeedReset() const {return this->needReset;}
 
 	bool	step();
 };
