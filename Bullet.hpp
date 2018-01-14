@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Bullet.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 22:59:29 by Ulliwy            #+#    #+#             */
-/*   Updated: 2018/01/13 23:25:51 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 12:10:08 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,16 @@
 
 #include "Item.hpp"
 
-class	Bullet : public Item
-{
+class	Bullet : public Item {
+private:
 	Cell cells[1][1];
 
 public:
 	Bullet();
-	virtual ~Bullet();
 	Bullet(int yy, int xx);
+	Bullet(Bullet const &frs);
+	virtual ~Bullet();
+	
 
 	virtual Cell *getCells() {
 		return &cells[0][0];

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Item.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 14:54:13 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 10:50:47 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 12:29:20 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,59 +20,33 @@
 
 class	Item {
 private:
-
 	static unsigned maxId;
-
 	unsigned id;
 	int		y;
 	int		x;
 
 protected:
-
 	virtual Cell *getCells() = 0;
 
 public:
-
 	Item();
-	virtual ~Item();
 	Item(int yy, int xx);
-
+	Item(Item const &rfs);
+	void operator=(Item const &rfs);
+	virtual ~Item();
+	
 	virtual int getWidth() const = 0;
 	virtual int getHeight() const = 0;
 
-	void draw(WINDOW *win) {
-		Cell *cells = getCells();
-		int height = getHeight();
-		int width = getWidth();
+	void draw(WINDOW *win);
+	void move(int dy, int dx);
 
-		for (int yy = 0; yy < height; yy++) {
-			for (int xx = 0; xx < width; xx++) {
-				Cell &cell = cells[yy + xx * height];
+	int getX() const;
+	int getY() const;
+	unsigned getId();
 
-				wattron(win, cell.attrib);
-				mvwprintw(win, y + yy, x + xx, "%c", cell.value);
-				wattroff(win, cell.attrib);
-			}
-		}
-	}
-
-	void	move(int dy, int dx);
-
-	int getX() const {
-		return x;
-	}
-
-	int getY() const {
-		return y;
-	}
-
-	unsigned getId() {
-		return id;
-	}
-
-	virtual bool step(std::clock_t timeStamp) { return false; };
-
-	virtual bool takeDamage() { return true; };
+	virtual bool step(std::clock_t timeStamp);
+	virtual bool takeDamage();
 };
 
 #endif

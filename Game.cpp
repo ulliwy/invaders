@@ -1,19 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Board.cpp                                          :+:      :+:    :+:   */
+/*   Game.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 12:13:34 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 10:59:29 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 12:42:44 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ncurses.h>
 #include <stdlib.h>
-
-#include "Board.hpp"
+#include "Game.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Cell.hpp"
@@ -23,15 +22,6 @@ static unsigned getTimeStamp() {
 	struct timespec time; 
     clock_gettime(CLOCK_REALTIME, &time);
     return (1000000000 * time.tv_sec + time.tv_nsec) / 1000000;
-}
-
-void Board::drawBox() const {
-	wborder(this->win, ' ', ' ', '-', '-', '+', '+', '+', '+');
-}
-
-void Board::drawBox(int y1, int y2, int x, int width) const {
-	mvwhline(win, y1, x, '-', width);
-	mvwhline(win, y2, x, '-', width);
 }
 
 bool collide(const Item &m1, const Item &m2) {
@@ -51,7 +41,10 @@ bool collide(const Item &m1, const Item &m2) {
 		   ((y1a < y2b && y1b > y2a) || (y1a > y2b && y1b < y2a));
 }
 
-Board::Board(int height, int width)
+Game::Game() {
+}
+
+Game::Game(int height, int width)
 	: gameState(PLAY), score(0), needReset(false),
 	  height(height), width(width),
 	  player(height/2, 1) {
@@ -65,7 +58,45 @@ Board::Board(int height, int width)
 	win = newwin(height, width, 0, 0);
 }
 
-bool Board::step() {
+Game::Game(Game &rfs) {
+}
+
+Game::~Game() {
+	delwin(win);
+	for (ItemList::iterator i = enemies.begin(); i != enemies.end(); ++i) {
+		delete i->item;
+	}
+
+	for (ItemList::iterator i = bullets.begin(); i != bullets.end(); ++i) {
+		delete i->item;
+	}
+}
+
+void Game::drawBox() const {
+	wborder(this->win, ' ', ' ', '-', '-', '+', '+', '+', '+');
+}
+
+void Game::drawBox(int y1, int y2, int x, int width) const {
+	mvwhline(win, y1, x, '-', width);
+	mvwhline(win, y2, x, '-', width);
+}
+
+void	Game::setWin(WINDOW *win)
+{
+	this->win = win;
+}
+
+WINDOW	*Game::getWin()
+{
+	return (win);
+}
+
+Player&	Game::getPlayer()
+{
+	return (player);
+}
+
+bool Game::step() {
 	unsigned cur = getTimeStamp();
 
 	getmaxyx(win, height, width);
@@ -119,7 +150,7 @@ bool Board::step() {
 	}
 
 	if (createBullet) {
-		if (cur - bulletFireTimeStamp > 800) {
+		if (cur - bulletFireTimeStamp > 200) {
 			bulletFireTimeStamp = cur;
 			bullets.push_back(new Bullet(py, px + player.getWidth()));
 		}
@@ -128,11 +159,9 @@ bool Board::step() {
 	if (cur - bulletTimeStamp >= 10) {
 		bulletTimeStamp = cur;
 
-		for (list_t::iterator i = bullets.begin(); i != bullets.end();) {
+		for (ItemList::iterator i = bullets.begin(); i != bullets.end();) {
 			Item &m = *i->item;
-
 			changed = true;
-
 			m.move(0, 1);	
 
 			// Destroy disappeared bullets
@@ -148,7 +177,7 @@ bool Board::step() {
 	if (cur - enemyTimeStamp >= 100) {
 		enemyTimeStamp = cur;
 
-		for (list_t::iterator i = enemies.begin(); i != enemies.end();) {
+		for (ItemList::iterator i = enemies.begin(); i != enemies.end();) {
 			Item &m = *i->item;
 
 			changed = true;
@@ -162,7 +191,7 @@ bool Board::step() {
 				m.move(dy, 0);
 				
 				//Check if there is a collision
-				for (list_t::iterator ie = enemies.begin(); ie != enemies.end(); ++ie) {
+				for (ItemList::iterator ie = enemies.begin(); ie != enemies.end(); ++ie) {
 					if(ie != i && collide(m, *ie->item)) {
 						// Move back and forward
 						m.move(-dy, -1);
@@ -185,7 +214,7 @@ bool Board::step() {
 	}
 
 	if (changed) {
-		for (list_t::iterator ie = enemies.begin(); ie != enemies.end();) {
+		for (ItemList::iterator ie = enemies.begin(); ie != enemies.end();) {
 			Item &enemy = *ie->item;
 
 			if (collide(player, enemy)) {
@@ -194,7 +223,7 @@ bool Board::step() {
 			}
 
 			bool foundCollision = false;
-			for (list_t::iterator ib = bullets.begin(); ib != bullets.end();) {
+			for (ItemList::iterator ib = bullets.begin(); ib != bullets.end();) {
 				if (collide(*ib->item, enemy)) {
 					if (enemy.takeDamage()) {
 						delete enemies.eraseInc(ie);
@@ -223,37 +252,27 @@ bool Board::step() {
 	return changed;
 }
 
-Board::~Board() {
-	delwin(win);
-	for (list_t::iterator i = enemies.begin(); i != enemies.end(); ++i) {
-		delete i->item;
-	}
-
-	for (list_t::iterator i = bullets.begin(); i != bullets.end(); ++i) {
-		delete i->item;
-	}
-}
-
-void Board::draw() {
+void Game::draw() {
 	int start = 1;
 	werase(win);
 	drawBox();
 
 	player.draw(win);
-	for (list_t::iterator i = enemies.begin(); i != enemies.end(); ++i) {
+	for (ItemList::iterator i = enemies.begin(); i != enemies.end(); ++i) {
 		i->item->draw(win);
 	}
-	for (list_t::iterator i = bullets.begin(); i != bullets.end(); ++i) {
+	for (ItemList::iterator i = bullets.begin(); i != bullets.end(); ++i) {
 		i->item->draw(win);
 	}
 
 	unsigned idx = start;
 	mvwprintw(win, idx++, 1, "Score: %u", score);
 
-	// for (list_t::iterator i = enemies.begin(); i != enemies.end(); ++i, ++idx) {
+	// logs for lists
+	// for (ItemList::iterator i = enemies.begin(); i != enemies.end(); ++i, ++idx) {
 	// 	mvwprintw(win, idx, 1, "enemyId: %u", i->item->getId());
 	// }
-	// for (list_t::iterator i = bullets.begin(); i != bullets.end(); ++i, ++idx) {
+	// for (ItemList::iterator i = bullets.begin(); i != bullets.end(); ++i, ++idx) {
 	// 	mvwprintw(win, idx, 1, "bulletId: %u", i->item->getId());
 	// }
 
@@ -264,19 +283,3 @@ void Board::draw() {
 	
 	wrefresh(win);
 }
-
-void	Board::setWin(WINDOW *win)
-{
-	this->win = win;
-}
-
-WINDOW	*Board::getWin()
-{
-	return (win);
-}
-
-Player&	Board::getPlayer()
-{
-	return (player);
-}
-

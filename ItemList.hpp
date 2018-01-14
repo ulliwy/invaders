@@ -3,57 +3,51 @@
 /*                                                        :::      ::::::::   */
 /*   ItemList.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/14 10:18:39 by Ulliwy            #+#    #+#             */
-/*   Updated: 2018/01/14 10:27:54 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 12:48:55 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Item.hpp"
 
-struct list_node_t {
+struct ListNode {
 	Item *item;
-	list_node_t *next;
-	list_node_t *prev;
+	ListNode *next;
+	ListNode *prev;
 
-	list_node_t(Item *item);
+	ListNode(Item *item);
 };
 
-class list_t {
-	list_node_t *head;
-	list_node_t *tail;
+class ItemList {
+	ListNode *head;
+	ListNode *tail;
 
 public:
-	class iterator {
-		list_node_t *&head;
-		list_node_t *&tail;
-		list_node_t *ptr;
+	struct iterator {
+		ListNode *&head;
+		ListNode *&tail;
+		ListNode *ptr;
 	public:
-		iterator(list_node_t *&head,
-				 list_node_t *&tail,
-				 list_node_t *ptr);
-		
-		iterator(list_node_t *&head,
-				 list_node_t *&tail);
-
+		iterator(ListNode *&head, ListNode *&tail, ListNode *ptr);
+		iterator(ListNode *&head, ListNode *&tail);
 		iterator(const iterator &arg);
 
 		bool operator==(const iterator &it);
-
 		bool operator!=(const iterator &it);
 
 		iterator operator++(int);
-
 		iterator &operator++();
-
-		list_node_t &operator*();
-
-		list_node_t *operator->();
+		ListNode &operator*();
+		ListNode *operator->();
 	};
 
-	list_t();
-	~list_t();
+	ItemList();
+	ItemList(ItemList const &rfs);
+	~ItemList();
+
+	void operator=(ItemList const &rfs);
 
 	void push_back(Item *item);
 

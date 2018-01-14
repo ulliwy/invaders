@@ -3,17 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 13:40:43 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 10:57:18 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 12:08:18 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ncurses.h"
-
-#include "Board.hpp"
-
+#include "Game.hpp"
 #include <iostream>
 
 void	init_display(int *height, int *width)
@@ -25,7 +23,6 @@ void	init_display(int *height, int *width)
 	init_pair(3, COLOR_YELLOW, COLOR_BLACK);
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	curs_set(FALSE);
-	//cbreak();
 	noecho();
 	timeout(1);
 	refresh();
@@ -39,13 +36,13 @@ int		main()
 
 	while (1) {
 		init_display(&height, &width);
-		Board board(height, width);
-		board.draw();
+		Game game(height, width);
+		game.draw();
 
-		while (!board.getNeedReset())
+		while (!game.getNeedReset())
 		{	
-			if (board.step()) {
-				board.draw();
+			if (game.step()) {
+				game.draw();
 			}
 		}
 	}

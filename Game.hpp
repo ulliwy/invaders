@@ -1,35 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Board.hpp                                          :+:      :+:    :+:   */
+/*   Game.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Ulliwy <Ulliwy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: iprokofy <iprokofy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/13 12:13:41 by olkovale          #+#    #+#             */
-/*   Updated: 2018/01/14 10:31:57 by Ulliwy           ###   ########.fr       */
+/*   Updated: 2018/01/14 12:42:30 by iprokofy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BOARD_HPP
-#define BOARD_HPP
+#ifndef GAME_HPP
+#define GAME_HPP
 
 #include <ncurses.h>
 #include <ctime>
-
 #include "Player.hpp"
 #include "Cell.hpp"
 #include "ItemList.hpp"
 #include <sys/time.h>
 
-class Board {
+class Game {
+	Game();
+	Game(Game &rfs);
+	void operator=(Game const &frs) {}
+	void drawBox() const;
+	void drawBox(int y1, int y2, int x, int width) const;
+	void reset();
+	
 	enum GameState {
 		PLAY,
 		GAMEOVER,
 	};
 
-	GameState gameState;
-	unsigned score;
-	bool needReset;
+	GameState 	gameState;
+	unsigned 	score;
+	bool 	needReset;
 
 	int		height;
 	int		width;
@@ -37,23 +43,16 @@ class Board {
 	Cell	**cells;
 	
 	Player	player;
-	list_t	enemies;
-	list_t	bullets;
+	ItemList	enemies;
+	ItemList	bullets;
 
 	unsigned enemyTimeStamp;
 	unsigned bulletTimeStamp;
 	unsigned bulletFireTimeStamp;
 
-	void drawBox() const;
-	void drawBox(int y1, int y2, int x, int width) const;
-	void reset();
-	Board() {}
-	Board(Board &rfs) {};
-	void operator=(Board const &frs) {}
-
 public:
-	~Board();
-	Board(int height, int width);
+	~Game();
+	Game(int height, int width);
 
 	WINDOW			*getWin();
 	void			setWin(WINDOW *win);
